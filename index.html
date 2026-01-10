@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tool Hỗ Trợ Anh Ngữ ABC - AI OCR</title>
+    <title>ABC Speaking Tool - AI OCR</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
@@ -18,19 +18,24 @@
             animation: spin 1s linear infinite;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @media (max-width: 640px) {
+            .table-container { overflow-x: auto; }
+            table { min-width: 600px; }
+        }
     </style>
 </head>
-<body class="bg-gray-50 min-h-screen p-4 md:p-8">
+<body class="bg-gray-50 min-h-screen p-4 md:p-8 text-gray-800">
 
     <div class="max-w-5xl mx-auto">
         <!-- Header -->
         <div class="bg-white rounded-2xl p-6 mb-6 custom-shadow border border-blue-100 flex flex-col md:flex-row justify-between items-center gap-4">
             <div>
-                <h1 class="text-2xl font-bold text-blue-700 mb-1 text-center md:text-left text-blue-800 uppercase tracking-tight">Hệ Thống Xử Lý Danh Sách ABC</h1>
-                <p class="text-gray-500 text-sm text-center md:text-left">Tự động nhận diện từ ảnh và tạo Title/Bio chuẩn định dạng</p>
+                <h1 class="text-2xl font-bold text-blue-700 mb-1 text-center md:text-left uppercase tracking-tight">Hệ Thống Xử Lý Danh Sách ABC</h1>
+                <p class="text-gray-500 text-sm text-center md:text-left italic">Công cụ hỗ trợ giáo viên - Xuất Title & Bio tự động</p>
             </div>
-            <div class="text-right">
-                <span class="text-xs font-mono bg-blue-50 text-blue-600 px-3 py-1 rounded-full border border-blue-100 italic font-bold">ABC ENGLISH CENTER</span>
+            <div class="text-right flex flex-col items-end">
+                <span class="text-xs font-mono bg-blue-50 text-blue-600 px-4 py-1.5 rounded-full border border-blue-100 font-bold">GITHUB DEPLOY READY</span>
+                <span class="text-[10px] text-gray-400 mt-1">v1.2.1 - 2026</span>
             </div>
         </div>
 
@@ -38,81 +43,83 @@
             <!-- Step 0: Template Settings -->
             <div class="bg-white rounded-2xl p-6 custom-shadow border border-gray-100">
                 <div class="flex items-center gap-2 mb-4 text-blue-800 font-bold text-sm uppercase tracking-wider">
-                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                    Thiết lập mẫu thông tin (Ghi sẵn)
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    Thiết lập thông tin chung (Mặc định)
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                        <label class="block text-xs font-bold text-gray-500 mb-1 uppercase">Loại bài (Ví dụ: Speaking Test)</label>
-                        <input type="text" id="tplType" value="Speaking Test" class="w-full p-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm font-medium transition-all" placeholder="VD: Speaking Test">
+                        <label class="block text-xs font-bold text-gray-400 mb-1 uppercase tracking-tighter">Loại bài (Ghi sẵn)</label>
+                        <input type="text" id="tplType" value="Speaking Test" class="w-full p-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm font-medium transition-all">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-gray-500 mb-1 uppercase">Trung tâm (Ví dụ: ABC 1)</label>
-                        <input type="text" id="tplCenter" value="ABC 1" class="w-full p-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm font-medium transition-all" placeholder="VD: ABC 1">
+                        <label class="block text-xs font-bold text-gray-400 mb-1 uppercase tracking-tighter">Trung tâm (Ghi sẵn)</label>
+                        <input type="text" id="tplCenter" value="ABC 1" class="w-full p-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm font-medium transition-all">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-gray-500 mb-1 uppercase">Ngày test (Ví dụ: 11/01/2026)</label>
-                        <input type="text" id="tplDate" class="w-full p-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm font-medium transition-all" placeholder="Để trống = Ngày hiện tại">
+                        <label class="block text-xs font-bold text-gray-400 mb-1 uppercase tracking-tighter">Ngày thực hiện</label>
+                        <input type="text" id="tplDate" class="w-full p-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm font-medium transition-all" placeholder="Để trống = Hôm nay">
                     </div>
                 </div>
             </div>
 
-            <!-- Step 1: Upload & Process -->
+            <!-- Step 1: Input -->
             <div class="bg-white rounded-2xl p-6 custom-shadow border border-gray-100">
                 <div class="flex items-center gap-2 mb-4 text-blue-800 font-bold">
                     <span class="bg-blue-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">1</span>
-                    Nhập dữ liệu hoặc Tải ảnh danh sách
+                    Nhập liệu (Ảnh hoặc Text)
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <div class="relative group">
                         <input type="file" id="imageInput" accept="image/*" class="hidden" onchange="handleImageUpload(event)">
-                        <label for="imageInput" class="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer bg-gray-50 hover:bg-blue-50 hover:border-blue-400 transition-all group-hover:bg-white">
-                            <svg class="w-8 h-8 text-blue-400 mb-2 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.587-1.587a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                            <span class="text-sm text-gray-500 font-medium text-center px-4 leading-snug">Nhấn vào đây để tải ảnh danh sách lên<br><small class="text-gray-400">(Tự động nhận diện Họ tên, Tên Anh, Lớp)</small></span>
+                        <label for="imageInput" class="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer bg-gray-50 hover:bg-white hover:border-blue-400 transition-all">
+                            <svg class="w-8 h-8 text-blue-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.587-1.587a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                            <span class="text-sm font-semibold text-gray-600">Tải ảnh danh sách lên</span>
+                            <span class="text-[10px] text-gray-400 mt-1 uppercase">AI sẽ tự nhận diện bảng</span>
                         </label>
-                        <div id="loadingOverlay" class="hidden absolute inset-0 bg-white/80 rounded-xl flex flex-col items-center justify-center">
-                            <div class="loading-spinner mb-2"></div>
-                            <span class="text-xs font-semibold text-blue-600">AI đang quét dữ liệu từ ảnh...</span>
+                        <div id="loadingOverlay" class="hidden absolute inset-0 bg-white/90 rounded-xl flex flex-col items-center justify-center z-10">
+                            <div class="loading-spinner mb-3"></div>
+                            <span class="text-xs font-bold text-blue-600 uppercase tracking-widest">Đang phân tích ảnh...</span>
                         </div>
                     </div>
 
                     <textarea 
                         id="inputData" 
-                        class="w-full h-40 p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm leading-relaxed"
-                        placeholder="Hoặc dán tay định dạng: Họ tên, Tên Anh, Lớp&#10;Ví dụ: Lê Thị Ngọc Ánh, Taylor, MGL"></textarea>
+                        class="w-full h-40 p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm leading-relaxed"
+                        placeholder="Hoặc dán tay: Họ tên, Tên Anh, Lớp (MGN/MGL/1/2...)"></textarea>
                 </div>
                 
                 <div class="flex flex-wrap gap-3">
                     <button 
                         onclick="processManualData()" 
-                        class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-xl transition-all shadow-lg active:transform active:scale-95 flex items-center gap-2">
-                        Xử lý và Xuất kết quả
+                        class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-xl transition-all shadow-md active:scale-95 flex items-center gap-2 uppercase text-sm tracking-wide">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                        Xuất kết quả
                     </button>
                     <button 
                         onclick="clearInput()" 
-                        class="bg-gray-100 hover:bg-gray-200 text-gray-600 font-semibold py-3 px-6 rounded-xl transition-all">
-                        Xóa tất cả
+                        class="bg-gray-100 hover:bg-gray-200 text-gray-500 font-bold py-3 px-6 rounded-xl transition-all uppercase text-sm tracking-wide">
+                        Làm mới
                     </button>
                 </div>
             </div>
 
             <!-- Step 2: Results -->
-            <div id="resultSection" class="hidden space-y-4 pb-10">
-                <div class="flex justify-between items-center px-2">
-                    <h2 class="text-xl font-bold text-gray-800 flex items-center gap-2">
-                        <span class="bg-green-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold">2</span>
-                        Bảng danh sách kết quả
+            <div id="resultSection" class="hidden space-y-4 pb-12">
+                <div class="flex justify-between items-center px-1">
+                    <h2 class="text-lg font-bold text-gray-800 flex items-center gap-2 uppercase tracking-tight">
+                        <span class="bg-green-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-[10px]">2</span>
+                        Bảng kết quả
                     </h2>
-                    <span class="text-xs text-gray-400 italic font-medium px-3 py-1 bg-white border rounded-full text-blue-600">Bấm nút Copy bên cạnh mỗi ô</span>
+                    <span class="text-[10px] font-bold text-blue-500 uppercase bg-blue-50 px-3 py-1 rounded-full border border-blue-100">Click nút để copy nhanh</span>
                 </div>
                 
-                <div class="overflow-x-auto rounded-2xl custom-shadow border border-gray-100 bg-white">
+                <div class="table-container bg-white rounded-2xl custom-shadow border border-gray-100 overflow-hidden">
                     <table class="w-full text-left text-sm border-collapse">
                         <thead class="bg-gray-50 border-b">
                             <tr>
-                                <th class="p-4 font-bold text-blue-900 w-1/3 text-center uppercase tracking-wider">Title</th>
-                                <th class="p-4 font-bold text-blue-900 w-2/3 text-center uppercase tracking-wider">Bio</th>
+                                <th class="p-4 font-bold text-gray-600 w-1/3 text-center uppercase text-[11px]">Tiêu đề (Title)</th>
+                                <th class="p-4 font-bold text-gray-600 w-2/3 text-center uppercase text-[11px]">Mô tả (Bio)</th>
                             </tr>
                         </thead>
                         <tbody id="resultBody" class="divide-y divide-gray-100"></tbody>
@@ -128,10 +135,7 @@
         async function handleImageUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
-
-            const loading = document.getElementById('loadingOverlay');
-            loading.classList.remove('hidden');
-
+            document.getElementById('loadingOverlay').classList.remove('hidden');
             try {
                 const reader = new FileReader();
                 reader.onload = async (e) => {
@@ -140,140 +144,78 @@
                 };
                 reader.readAsDataURL(file);
             } catch (error) {
-                console.error("Lỗi:", error);
-                alert("Không thể đọc file ảnh.");
+                alert("Lỗi đọc file.");
             } finally {
-                loading.classList.add('hidden');
+                document.getElementById('loadingOverlay').classList.add('hidden');
             }
         }
 
         async function analyzeImage(base64Data) {
-            const prompt = "Đọc danh sách trong ảnh và trả về JSON. Các trường: hoTen, tenTiengAnh, lop. Chỉ trả về JSON nguyên bản, không thêm văn bản khác.";
-            
-            const payload = {
-                contents: [{
-                    parts: [
-                        { text: prompt },
-                        { inlineData: { mimeType: "image/png", data: base64Data } }
-                    ]
-                }]
-            };
-
+            const prompt = "Đọc danh sách và trả về JSON: [ {hoTen, tenTiengAnh, lop} ]. Chỉ trả về JSON.";
+            const payload = { contents: [{ parts: [{ text: prompt }, { inlineData: { mimeType: "image/png", data: base64Data } }] }] };
             try {
-                let response;
-                let retryCount = 0;
-                const maxRetries = 5;
-                const delays = [1000, 2000, 4000, 8000, 16000];
-
-                while (retryCount < maxRetries) {
-                    response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
-                        method: 'POST',
-                        body: JSON.stringify(payload)
-                    });
-                    if (response.ok) break;
-                    await new Promise(resolve => setTimeout(resolve, delays[retryCount]));
-                    retryCount++;
-                }
-
-                if (!response.ok) throw new Error("API Error");
-
+                let response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                });
                 const result = await response.json();
                 const text = result.candidates[0].content.parts[0].text;
-                
                 const jsonStr = text.substring(text.indexOf('['), text.lastIndexOf(']') + 1);
                 const data = JSON.parse(jsonStr);
-
-                const formatted = data.map(item => `${item.hoTen}, ${item.tenTiengAnh}, ${item.lop}`).join('\n');
-                document.getElementById('inputData').value = formatted;
-                
+                document.getElementById('inputData').value = data.map(i => `${i.hoTen}, ${i.tenTiengAnh}, ${i.lop}`).join('\n');
                 processManualData();
-
             } catch (error) {
-                alert("Lỗi nhận diện. Vui lòng chụp ảnh rõ hơn hoặc nhập tay.");
+                alert("AI không nhận diện được. Thử chụp rõ hơn.");
             }
         }
 
-        // Hàm quy đổi từ cột "Lớp" sang "Số Tuổi"
         function mapLopToTuoi(lopStr) {
             if (!lopStr) return "X Tuổi";
             const lop = lopStr.toUpperCase().trim();
-            
-            // Logic quy đổi
             if (lop.includes("MGN")) return "4 Tuổi";
             if (lop.includes("MGL")) return "5 Tuổi";
-            
-            // Kiểm tra nếu là số (Lớp 1, 2, 3...)
-            const matchNumber = lop.match(/\d+/);
-            if (matchNumber) {
-                const lopNum = parseInt(matchNumber[0]);
-                // Lớp 1 -> 6 tuổi, Lớp 2 -> 7 tuổi, ... (Lớp n + 5)
-                return (lopNum + 5) + " Tuổi";
-            }
-            
-            return lop; // Nếu không khớp gì thì giữ nguyên text của lớp
+            const match = lop.match(/\d+/);
+            if (match) return (parseInt(match[0]) + 5) + " Tuổi";
+            return lop;
         }
 
         function processManualData() {
             const input = document.getElementById('inputData').value;
             const lines = input.split('\n');
             const tbody = document.getElementById('resultBody');
-            const resultSection = document.getElementById('resultSection');
-
-            const tplType = document.getElementById('tplType').value.trim() || "Speaking Test";
-            const tplCenter = document.getElementById('tplCenter').value.trim() || "ABC";
-            const tplDate = document.getElementById('tplDate').value.trim() || new Date().toLocaleDateString('vi-VN');
+            const tplType = document.getElementById('tplType').value || "Speaking Test";
+            const tplCenter = document.getElementById('tplCenter').value || "ABC";
+            const tplDate = document.getElementById('tplDate').value || new Date().toLocaleDateString('vi-VN');
             
             tbody.innerHTML = '';
             let hasData = false;
 
             lines.forEach(line => {
-                if (line.trim() === "") return;
-                
+                if (!line.trim()) return;
                 const parts = line.split(',').map(p => p.trim());
                 if (parts.length < 2) return;
 
                 const hoTen = parts[0];
-                const tenEnglish = parts[1];
-                const lopRaw = parts[2] || "";
+                const tenAnh = parts[1];
+                const lop = parts[2] || "";
+                const tuoi = mapLopToTuoi(lop);
                 
-                const tuoiHienThi = mapLopToTuoi(lopRaw);
+                const names = hoTen.split(' ');
+                const tenRutGon = names.length >= 2 ? names[names.length-2] + " " + names[names.length-1] : hoTen;
 
-                const hoTenArray = hoTen.split(' ');
-                let tenGhep = "";
-                if (hoTenArray.length >= 2) {
-                    tenGhep = hoTenArray[hoTenArray.length - 2] + " " + hoTenArray[hoTenArray.length - 1];
-                } else {
-                    tenGhep = hoTen;
-                }
-
-                const title = `${tplType} - ${tplCenter} - ${tenGhep} ${tenEnglish}`;
-                const bioLine1 = `${hoTen} - ${tenEnglish} - ${tuoiHienThi} - Test ${tplDate}`;
-                const bio = `${bioLine1}\n\nContact for work: Anh ngữ ABC Hội An\nEmail: abcenglishcenter@gmail.com\nHotline: 0393 62 1362\nFacebook: Anh Ngữ ABC Hội An\nAddress: 1362 Trần Thủ Độ, Điện Bàn Đông, Đà Nẵng`;
+                const title = `${tplType} - ${tplCenter} - ${tenRutGon} ${tenAnh}`;
+                const bio = `${hoTen} - ${tenAnh} - ${tuoi} - Test ${tplDate}\n\nContact for work: Anh ngữ ABC Hội An\nEmail: abcenglishcenter@gmail.com\nHotline: 0393 62 1362\nFacebook: Anh Ngữ ABC Hội An\nAddress: 1362 Trần Thủ Độ, Điện Bàn Đông, Đà Nẵng`;
 
                 const tr = document.createElement('tr');
-                tr.className = "hover:bg-blue-50/40 transition-all group";
+                tr.className = "hover:bg-blue-50/30 transition-all";
                 tr.innerHTML = `
-                    <td class="p-6 align-top">
-                        <div class="relative group/cell">
-                            <div class="bg-white border-2 border-gray-100 p-4 rounded-xl font-bold text-blue-700 text-center leading-relaxed mb-2 min-h-[80px] flex items-center justify-center">
-                                ${title}
-                            </div>
-                            <button onclick="copyText(this, \`${title}\`)" class="w-full bg-blue-50 hover:bg-blue-600 hover:text-white text-blue-600 text-[10px] font-bold py-1.5 rounded-lg transition-all flex items-center justify-center gap-1.5 border border-blue-100 uppercase tracking-wider">
-                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
-                                Sao chép Title
-                            </button>
-                        </div>
+                    <td class="p-4 align-top">
+                        <div class="bg-blue-50/50 border border-blue-100 p-3 rounded-xl font-bold text-blue-700 text-center text-xs leading-relaxed mb-2">${title}</div>
+                        <button onclick="copyText(this, \`${title}\`)" class="w-full bg-white hover:bg-blue-600 hover:text-white text-blue-600 text-[10px] font-bold py-2 rounded-lg transition-all flex items-center justify-center gap-1 border border-blue-200 shadow-sm uppercase">Sao chép Title</button>
                     </td>
-                    <td class="p-6 align-top">
-                        <div class="relative group/cell">
-                            <div class="bg-white border-2 border-gray-100 p-4 rounded-xl whitespace-pre-wrap text-gray-700 text-xs leading-loose mb-2 min-h-[80px]">
-                                ${bio}
-                            </div>
-                            <button onclick="copyText(this, \`${bio}\`)" class="w-full bg-green-50 hover:bg-green-600 hover:text-white text-green-600 text-[10px] font-bold py-1.5 rounded-lg transition-all flex items-center justify-center gap-1.5 border border-green-100 uppercase tracking-wider">
-                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
-                                Sao chép Bio
-                            </button>
-                        </div>
+                    <td class="p-4 align-top">
+                        <div class="bg-gray-50 border border-gray-100 p-3 rounded-xl whitespace-pre-wrap text-gray-600 text-[10px] leading-relaxed mb-2">${bio}</div>
+                        <button onclick="copyText(this, \`${bio}\`)" class="w-full bg-white hover:bg-green-600 hover:text-white text-green-600 text-[10px] font-bold py-2 rounded-lg transition-all flex items-center justify-center gap-1 border border-green-200 shadow-sm uppercase">Sao chép Bio</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -281,36 +223,30 @@
             });
 
             if (hasData) {
-                resultSection.classList.remove('hidden');
-                resultSection.scrollIntoView({ behavior: 'smooth' });
+                document.getElementById('resultSection').classList.remove('hidden');
+                window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
             }
         }
 
         function copyText(btn, text) {
-            const textArea = document.createElement("textarea");
-            textArea.value = text;
-            document.body.appendChild(textArea);
-            textArea.select();
+            const el = document.createElement('textarea');
+            el.value = text;
+            document.body.appendChild(el);
+            el.select();
             document.execCommand('copy');
-            document.body.removeChild(textArea);
+            document.body.removeChild(el);
 
-            const originalHTML = btn.innerHTML;
-            btn.innerHTML = `
-                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                Đã xong!
-            `;
-            const originalClass = btn.className;
-            btn.className = btn.className.replace('bg-blue-50', 'bg-green-500 text-white').replace('bg-green-50', 'bg-green-500 text-white').replace('text-blue-600', '').replace('text-green-600', '');
-
+            const oldText = btn.innerHTML;
+            btn.innerHTML = 'COPIED!';
+            btn.classList.add('bg-gray-800', 'text-white');
             setTimeout(() => {
-                btn.innerHTML = originalHTML;
-                btn.className = originalClass;
-            }, 1000);
+                btn.innerHTML = oldText;
+                btn.classList.remove('bg-gray-800', 'text-white');
+            }, 800);
         }
 
         function clearInput() {
             document.getElementById('inputData').value = '';
-            document.getElementById('imageInput').value = '';
             document.getElementById('resultSection').classList.add('hidden');
         }
     </script>
