@@ -7,130 +7,161 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; }
+        body { font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
         .custom-shadow { box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1); }
         .loading-spinner {
             border: 3px solid #f3f3f3;
             border-top: 3px solid #3498db;
             border-radius: 50%;
-            width: 20px;
-            height: 20px;
+            width: 24px;
+            height: 24px;
             animation: spin 1s linear infinite;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        .table-container { 
+            overflow-x: auto; 
+            scrollbar-width: thin;
+            scrollbar-color: #cbd5e1 #f8fafc;
+        }
         @media (max-width: 640px) {
-            .table-container { overflow-x: auto; }
-            table { min-width: 600px; }
+            table { min-width: 800px; }
         }
     </style>
 </head>
-<body class="bg-gray-50 min-h-screen p-4 md:p-8 text-gray-800">
+<body class="bg-slate-50 min-h-screen p-4 md:p-8 text-slate-800">
 
-    <div class="max-w-5xl mx-auto">
+    <div class="max-w-6xl mx-auto">
         <!-- Header -->
-        <div class="bg-white rounded-2xl p-6 mb-6 custom-shadow border border-blue-100 flex flex-col md:flex-row justify-between items-center gap-4">
-            <div>
-                <h1 class="text-2xl font-bold text-blue-700 mb-1 text-center md:text-left uppercase tracking-tight">Hệ Thống Xử Lý Danh Sách ABC</h1>
-                <p class="text-gray-500 text-sm text-center md:text-left italic">Công cụ hỗ trợ giáo viên - Xuất Title & Bio tự động</p>
+        <div class="bg-white rounded-3xl p-6 mb-6 custom-shadow border border-blue-50 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-4">
+                <div id="logoContainer" class="bg-blue-600 p-3 rounded-2xl shadow-lg transition-all duration-300">
+                    <svg id="logoSvg" class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold text-slate-800 mb-0.5 tracking-tight uppercase">ABC List Processor</h1>
+                    <div class="flex items-center gap-2">
+                        <label class="text-[10px] font-bold text-slate-400 uppercase">Scale Logo:</label>
+                        <input type="range" id="logoScale" min="0.5" max="2" step="0.1" value="1" class="w-20 h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer" oninput="updateLogoScale(this.value)">
+                    </div>
+                </div>
             </div>
             <div class="text-right flex flex-col items-end">
-                <span class="text-xs font-mono bg-blue-50 text-blue-600 px-4 py-1.5 rounded-full border border-blue-100 font-bold">GITHUB DEPLOY READY</span>
-                <span class="text-[10px] text-gray-400 mt-1">v1.2.1 - 2026</span>
+                <span class="text-[10px] font-mono bg-blue-50 text-blue-600 px-4 py-1.5 rounded-full border border-blue-100 font-bold tracking-tighter">V2.0 - SEARCH ENABLED</span>
             </div>
         </div>
 
         <div class="grid grid-cols-1 gap-6">
-            <!-- Step 0: Template Settings -->
-            <div class="bg-white rounded-2xl p-6 custom-shadow border border-gray-100">
-                <div class="flex items-center gap-2 mb-4 text-blue-800 font-bold text-sm uppercase tracking-wider">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                    Thiết lập thông tin chung (Mặc định)
+            <!-- Cấu hình mặc định -->
+            <div class="bg-white rounded-3xl p-6 custom-shadow border border-slate-100">
+                <div class="flex items-center gap-2 mb-4 text-blue-600 font-bold text-xs uppercase tracking-widest">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m12 4a2 2 0 100-4m0 4a2 2 0 110-4m-6 0a2 2 0 100 4m0-4a2 2 0 110 4m-6 0h2m4 0h2m4 0h2m-16 4h6m4 0h6m-16-12h6m4 0h6"></path></svg>
+                    Thiết lập mẫu
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                        <label class="block text-xs font-bold text-gray-400 mb-1 uppercase tracking-tighter">Loại bài (Ghi sẵn)</label>
-                        <input type="text" id="tplType" value="Speaking Test" class="w-full p-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm font-medium transition-all">
+                    <div class="space-y-1">
+                        <label class="block text-[10px] font-black text-slate-400 uppercase ml-1">Loại bài thi</label>
+                        <input type="text" id="tplType" value="Speaking Test" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm font-semibold transition-all">
                     </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-400 mb-1 uppercase tracking-tighter">Trung tâm (Ghi sẵn)</label>
-                        <input type="text" id="tplCenter" value="ABC 1" class="w-full p-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm font-medium transition-all">
+                    <div class="space-y-1">
+                        <label class="block text-[10px] font-black text-slate-400 uppercase ml-1">Trung tâm</label>
+                        <input type="text" id="tplCenter" value="ABC 1" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm font-semibold transition-all">
                     </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-400 mb-1 uppercase tracking-tighter">Ngày thực hiện</label>
-                        <input type="text" id="tplDate" class="w-full p-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm font-medium transition-all" placeholder="Để trống = Hôm nay">
+                    <div class="space-y-1">
+                        <label class="block text-[10px] font-black text-slate-400 uppercase ml-1">Ngày thực hiện</label>
+                        <input type="text" id="tplDate" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm font-semibold transition-all" placeholder="Để trống = Hôm nay">
                     </div>
                 </div>
             </div>
 
-            <!-- Step 1: Input -->
-            <div class="bg-white rounded-2xl p-6 custom-shadow border border-gray-100">
-                <div class="flex items-center gap-2 mb-4 text-blue-800 font-bold">
-                    <span class="bg-blue-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">1</span>
-                    Nhập liệu (Ảnh hoặc Text)
+            <!-- Nhập dữ liệu -->
+            <div class="bg-white rounded-3xl p-6 custom-shadow border border-slate-100">
+                <div class="flex items-center gap-2 mb-4 text-slate-800 font-bold uppercase text-xs tracking-widest">
+                    <span class="bg-blue-600 text-white w-5 h-5 rounded-lg flex items-center justify-center text-[10px]">01</span>
+                    Đầu vào dữ liệu
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <div class="relative group">
                         <input type="file" id="imageInput" accept="image/*" class="hidden" onchange="handleImageUpload(event)">
-                        <label for="imageInput" class="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer bg-gray-50 hover:bg-white hover:border-blue-400 transition-all">
-                            <svg class="w-8 h-8 text-blue-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.587-1.587a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                            <span class="text-sm font-semibold text-gray-600">Tải ảnh danh sách lên</span>
-                            <span class="text-[10px] text-gray-400 mt-1 uppercase">AI sẽ tự nhận diện bảng</span>
+                        <label for="imageInput" class="flex flex-col items-center justify-center w-full h-44 border-2 border-dashed border-slate-200 rounded-2xl cursor-pointer bg-slate-50 hover:bg-white hover:border-blue-400 hover:shadow-xl hover:shadow-blue-50 transition-all">
+                            <div class="bg-blue-100 p-2 rounded-full mb-2">
+                                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.587-1.587a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                            </div>
+                            <span class="text-sm font-bold text-slate-700">Tải ảnh bảng danh sách</span>
+                            <span class="text-[10px] text-slate-400 mt-1 uppercase font-medium italic text-center px-4">Công nghệ AI nhận diện tự động</span>
                         </label>
-                        <div id="loadingOverlay" class="hidden absolute inset-0 bg-white/90 rounded-xl flex flex-col items-center justify-center z-10">
+                        <div id="loadingOverlay" class="hidden absolute inset-0 bg-white/95 rounded-2xl flex flex-col items-center justify-center z-10">
                             <div class="loading-spinner mb-3"></div>
-                            <span class="text-xs font-bold text-blue-600 uppercase tracking-widest">Đang phân tích ảnh...</span>
+                            <span class="text-[10px] font-black text-blue-600 uppercase tracking-widest">AI đang phân tích bảng...</span>
                         </div>
                     </div>
 
                     <textarea 
                         id="inputData" 
-                        class="w-full h-40 p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm leading-relaxed"
-                        placeholder="Hoặc dán tay: Họ tên, Tên Anh, Lớp (MGN/MGL/1/2...)"></textarea>
+                        class="w-full h-44 p-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm leading-relaxed font-medium"
+                        placeholder="Mẫu nhập tay:&#10;Họ tên, Tên Tiếng Anh, Lớp&#10;Nguyễn Văn A, Tommy, MGL"></textarea>
                 </div>
                 
-                <div class="flex flex-wrap gap-3">
+                <div class="flex flex-col sm:flex-row gap-3">
                     <button 
                         onclick="processManualData()" 
-                        class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-xl transition-all shadow-md active:scale-95 flex items-center gap-2 uppercase text-sm tracking-wide">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                        Xuất kết quả
+                        class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-2xl transition-all shadow-lg shadow-blue-100 active:scale-95 flex items-center justify-center gap-2 uppercase text-xs tracking-widest">
+                        Xử lý và hiển thị
                     </button>
                     <button 
                         onclick="clearInput()" 
-                        class="bg-gray-100 hover:bg-gray-200 text-gray-500 font-bold py-3 px-6 rounded-xl transition-all uppercase text-sm tracking-wide">
-                        Làm mới
+                        class="px-8 bg-slate-100 hover:bg-slate-200 text-slate-500 font-bold py-4 rounded-2xl transition-all uppercase text-xs tracking-widest">
+                        Xóa trắng
                     </button>
                 </div>
             </div>
 
-            <!-- Step 2: Results -->
+            <!-- Kết quả và Tìm kiếm -->
             <div id="resultSection" class="hidden space-y-4 pb-12">
-                <div class="flex justify-between items-center px-1">
-                    <h2 class="text-lg font-bold text-gray-800 flex items-center gap-2 uppercase tracking-tight">
-                        <span class="bg-green-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-[10px]">2</span>
-                        Bảng kết quả
+                <div class="flex flex-col md:flex-row justify-between items-center gap-4 px-2">
+                    <h2 class="text-xs font-bold text-slate-400 flex items-center gap-2 uppercase tracking-widest w-full">
+                        <span class="bg-green-500 text-white w-5 h-5 rounded-lg flex items-center justify-center text-[10px]">02</span>
+                        Bảng quản lý kết quả
                     </h2>
-                    <span class="text-[10px] font-bold text-blue-500 uppercase bg-blue-50 px-3 py-1 rounded-full border border-blue-100">Click nút để copy nhanh</span>
+                    <!-- Thanh tìm kiếm -->
+                    <div class="relative w-full md:w-80">
+                        <input type="text" id="searchInput" onkeyup="filterResults()" placeholder="Tìm theo Tên Anh / Họ Tên..." class="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-xs font-bold shadow-sm transition-all">
+                        <svg class="w-4 h-4 text-slate-400 absolute left-3 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </div>
                 </div>
                 
-                <div class="table-container bg-white rounded-2xl custom-shadow border border-gray-100 overflow-hidden">
-                    <table class="w-full text-left text-sm border-collapse">
-                        <thead class="bg-gray-50 border-b">
-                            <tr>
-                                <th class="p-4 font-bold text-gray-600 w-1/3 text-center uppercase text-[11px]">Tiêu đề (Title)</th>
-                                <th class="p-4 font-bold text-gray-600 w-2/3 text-center uppercase text-[11px]">Mô tả (Bio)</th>
+                <div class="table-container bg-white rounded-3xl custom-shadow border border-slate-100 overflow-hidden">
+                    <table class="w-full text-left text-sm border-collapse" id="resultTable">
+                        <thead>
+                            <tr class="bg-slate-50/50 border-b border-slate-100">
+                                <th class="p-4 font-bold text-slate-500 w-[15%] text-center uppercase text-[10px] tracking-widest">Tên Anh</th>
+                                <th class="p-4 font-bold text-slate-500 w-[25%] text-center uppercase text-[10px] tracking-widest">Tiêu đề (Title)</th>
+                                <th class="p-4 font-bold text-slate-500 w-[60%] text-center uppercase text-[10px] tracking-widest">Mô tả (Bio)</th>
                             </tr>
                         </thead>
-                        <tbody id="resultBody" class="divide-y divide-gray-100"></tbody>
+                        <tbody id="resultBody" class="divide-y divide-slate-50"></tbody>
                     </table>
                 </div>
             </div>
         </div>
     </div>
 
+    <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-6 py-3 rounded-2xl text-[10px] font-bold uppercase tracking-widest opacity-0 translate-y-4 transition-all pointer-events-none shadow-2xl z-50">
+        Đã sao chép!
+    </div>
+
     <script>
         const apiKey = ""; 
+
+        // Hàm cập nhật tỷ lệ Logo
+        function updateLogoScale(val) {
+            const container = document.getElementById('logoContainer');
+            const svg = document.getElementById('logoSvg');
+            container.style.transform = `scale(${val})`;
+            // Điều chỉnh padding để không bị đè
+            container.style.margin = `${(val - 1) * 10}px`;
+        }
 
         async function handleImageUpload(event) {
             const file = event.target.files[0];
@@ -144,14 +175,15 @@
                 };
                 reader.readAsDataURL(file);
             } catch (error) {
-                alert("Lỗi đọc file.");
+                alert("Lỗi tải ảnh.");
             } finally {
                 document.getElementById('loadingOverlay').classList.add('hidden');
+                event.target.value = '';
             }
         }
 
         async function analyzeImage(base64Data) {
-            const prompt = "Đọc danh sách và trả về JSON: [ {hoTen, tenTiengAnh, lop} ]. Chỉ trả về JSON.";
+            const prompt = "Trích xuất danh sách từ ảnh thành JSON mảng: [ {hoTen, tenTiengAnh, lop} ]. Trả về duy nhất JSON.";
             const payload = { contents: [{ parts: [{ text: prompt }, { inlineData: { mimeType: "image/png", data: base64Data } }] }] };
             try {
                 let response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
@@ -165,7 +197,7 @@
                 document.getElementById('inputData').value = data.map(i => `${i.hoTen}, ${i.tenTiengAnh}, ${i.lop}`).join('\n');
                 processManualData();
             } catch (error) {
-                alert("AI không nhận diện được. Thử chụp rõ hơn.");
+                alert("Không thể đọc ảnh. Thử chụp chính diện bảng tên.");
             }
         }
 
@@ -201,21 +233,27 @@
                 const tuoi = mapLopToTuoi(lop);
                 
                 const names = hoTen.split(' ');
-                const tenRutGon = names.length >= 2 ? names[names.length-2] + " " + names[names.length-1] : hoTen;
+                const tenCuoi = names.length >= 2 ? names[names.length-2] + " " + names[names.length-1] : hoTen;
 
-                const title = `${tplType} - ${tplCenter} - ${tenRutGon} ${tenAnh}`;
-                const bio = `${hoTen} - ${tenAnh} - ${tuoi} - Test ${tplDate}\n\nContact for work: Anh ngữ ABC Hội An\nEmail: abcenglishcenter@gmail.com\nHotline: 0393 62 1362\nFacebook: Anh Ngữ ABC Hội An\nAddress: 1362 Trần Thủ Độ, Điện Bàn Đông, Đà Nẵng`;
+                const title = `${tplType} - ${tplCenter} - ${tenCuoi} ${tenAnh}`;
+                const bio = `${hoTen} - ${tenAnh} - ${tuoi} - Test ${tplDate}\n\nContact for work: Anh ngữ ABC Hội An\nEmail: abcenglishcenter@gmail.com\nHotline: 0393 62 1362\nFacebook: Anh Ngữ ABC Hội An\nAddress: 1362 Trần Thủ Độ, Điện Bàn Đông, Quảng Nam`;
 
                 const tr = document.createElement('tr');
-                tr.className = "hover:bg-blue-50/30 transition-all";
+                tr.className = "hover:bg-slate-50/50 transition-all group result-row";
+                // Lưu dữ liệu vào data-attribute để search
+                tr.setAttribute('data-search', `${hoTen.toLowerCase()} ${tenAnh.toLowerCase()}`);
+                
                 tr.innerHTML = `
-                    <td class="p-4 align-top">
-                        <div class="bg-blue-50/50 border border-blue-100 p-3 rounded-xl font-bold text-blue-700 text-center text-xs leading-relaxed mb-2">${title}</div>
-                        <button onclick="copyText(this, \`${title}\`)" class="w-full bg-white hover:bg-blue-600 hover:text-white text-blue-600 text-[10px] font-bold py-2 rounded-lg transition-all flex items-center justify-center gap-1 border border-blue-200 shadow-sm uppercase">Sao chép Title</button>
+                    <td class="p-4 text-center">
+                        <span class="inline-block bg-blue-100 text-blue-700 font-black px-3 py-1 rounded-lg text-xs tracking-tight">${tenAnh}</span>
+                    </td>
+                    <td class="p-4 align-top border-x border-slate-50">
+                        <div class="bg-white border border-slate-100 p-3 rounded-xl font-bold text-slate-700 text-center text-[11px] leading-relaxed mb-2 shadow-sm">${title}</div>
+                        <button onclick="copyText(this, \`${title}\`)" class="w-full bg-slate-900 text-white text-[9px] font-bold py-2 rounded-lg transition-all hover:bg-blue-600 uppercase tracking-widest shadow-sm">Copy Title</button>
                     </td>
                     <td class="p-4 align-top">
-                        <div class="bg-gray-50 border border-gray-100 p-3 rounded-xl whitespace-pre-wrap text-gray-600 text-[10px] leading-relaxed mb-2">${bio}</div>
-                        <button onclick="copyText(this, \`${bio}\`)" class="w-full bg-white hover:bg-green-600 hover:text-white text-green-600 text-[10px] font-bold py-2 rounded-lg transition-all flex items-center justify-center gap-1 border border-green-200 shadow-sm uppercase">Sao chép Bio</button>
+                        <div class="bg-slate-50 border border-slate-100 p-3 rounded-xl whitespace-pre-wrap text-slate-500 text-[10px] leading-loose font-medium mb-2">${bio}</div>
+                        <button onclick="copyText(this, \`${bio}\`)" class="w-full bg-white text-slate-400 border border-slate-200 text-[9px] font-bold py-2 rounded-lg transition-all hover:bg-slate-50 uppercase tracking-widest shadow-sm">Copy Bio</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -224,30 +262,61 @@
 
             if (hasData) {
                 document.getElementById('resultSection').classList.remove('hidden');
-                window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+                document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
+        }
+
+        // Hàm lọc kết quả tìm kiếm
+        function filterResults() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const rows = document.querySelectorAll('.result-row');
+            
+            rows.forEach(row => {
+                const searchData = row.getAttribute('data-search');
+                if (searchData.includes(query)) {
+                    row.classList.remove('hidden');
+                } else {
+                    row.classList.add('hidden');
+                }
+            });
         }
 
         function copyText(btn, text) {
             const el = document.createElement('textarea');
             el.value = text;
+            el.setAttribute('readonly', '');
+            el.style.position = 'absolute';
+            el.style.left = '-9999px';
             document.body.appendChild(el);
             el.select();
             document.execCommand('copy');
             document.body.removeChild(el);
 
-            const oldText = btn.innerHTML;
-            btn.innerHTML = 'COPIED!';
-            btn.classList.add('bg-gray-800', 'text-white');
+            showToast();
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = 'XONG!';
+            btn.classList.add('!bg-green-500', '!text-white');
             setTimeout(() => {
-                btn.innerHTML = oldText;
-                btn.classList.remove('bg-gray-800', 'text-white');
+                btn.innerHTML = originalHTML;
+                btn.classList.remove('!bg-green-500', '!text-white');
             }, 800);
+        }
+
+        function showToast() {
+            const toast = document.getElementById('toast');
+            toast.classList.remove('opacity-0', 'translate-y-4');
+            toast.classList.add('opacity-100', 'translate-y-0');
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-4');
+                toast.classList.remove('opacity-100', 'translate-y-0');
+            }, 2000);
         }
 
         function clearInput() {
             document.getElementById('inputData').value = '';
             document.getElementById('resultSection').classList.add('hidden');
+            document.getElementById('searchInput').value = '';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     </script>
 </body>
