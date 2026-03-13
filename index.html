@@ -53,7 +53,7 @@
                     <input type="password" id="apiKeyInput" placeholder="Dán Gemini API Key vào đây..." class="w-full pl-3 pr-10 py-2 bg-slate-50 border border-slate-200 rounded-xl text-[10px] font-bold outline-none focus:ring-2 focus:ring-blue-500 transition-all">
                     <button onclick="saveApiKey()" class="absolute right-2 top-1.5 text-blue-600 hover:text-blue-800 font-bold text-[10px] uppercase">Lưu</button>
                 </div>
-                <span class="text-[10px] font-mono bg-blue-50 text-blue-600 px-4 py-1.5 rounded-full border border-blue-100 font-bold tracking-tighter">V2.3 - PERSISTENT KEY</span>
+                <span class="text-[10px] font-mono bg-blue-50 text-blue-600 px-4 py-1.5 rounded-full border border-blue-100 font-bold tracking-tighter">V2.4 - FIXED MODEL</span>
             </div>
         </div>
 
@@ -215,6 +215,8 @@
         }
 
         async function analyzeImage(base64Data, key) {
+            // Sử dụng mô hình gemini-1.5-flash ổn định nhất cho OCR và Vision
+            const modelName = "gemini-1.5-flash";
             const prompt = "Hãy đọc bảng trong ảnh và trích xuất danh sách học sinh thành định dạng JSON mảng: [ {hoTen, tenTiengAnh, lop} ]. Chỉ trả về duy nhất chuỗi JSON, không giải thích thêm.";
             const payload = { 
                 contents: [{ 
@@ -228,14 +230,18 @@
             const fetchWithRetry = async (url, options, retries = 5, backoff = 1000) => {
                 try {
                     const response = await fetch(url, options);
+                    const responseData = await response.json();
+                    
                     if (!response.ok) {
-                        const errorData = await response.json();
                         if (response.status === 403) {
-                             throw new Error("Lỗi 403: API Key không hợp lệ hoặc đã bị vô hiệu hóa.");
+                             throw new Error("Lỗi 403: API Key không hợp lệ, hết hạn hoặc bị Google chặn do nghi ngờ lộ khóa.");
                         }
-                        throw new Error(errorData.error?.message || "Lỗi API");
+                        if (response.status === 404) {
+                             throw new Error("Lỗi 404: Mô hình không tồn tại. Đang thử mô hình dự phòng...");
+                        }
+                        throw new Error(responseData.error?.message || "Lỗi API");
                     }
-                    return response;
+                    return responseData;
                 } catch (err) {
                     if (retries > 0 && !err.message.includes("403")) {
                         await new Promise(resolve => setTimeout(resolve, backoff));
@@ -246,15 +252,16 @@
             };
 
             try {
-                let response = await fetchWithRetry(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${key}`, {
+                const result = await fetchWithRetry(`https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${key}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
-                const result = await response.json();
                 
                 let text = result.candidates[0].content.parts[0].text;
-                const jsonStr = text.substring(text.indexOf('['), text.lastIndexOf(']') + 1);
+                // Làm sạch dữ liệu trả về (loại bỏ markdown nếu có)
+                const cleanJson = text.replace(/```json/g, "").replace(/```/g, "").trim();
+                const jsonStr = cleanJson.substring(cleanJson.indexOf('['), cleanJson.lastIndexOf(']') + 1);
                 const data = JSON.parse(jsonStr);
                 
                 document.getElementById('inputData').value = data.map(i => `${i.hoTen || ''}, ${i.tenTiengAnh || ''}, ${i.lop || ''}`).join('\n');
