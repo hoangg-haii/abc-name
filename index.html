@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ABC Speaking Tool - Gemini 2.5 Flash</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Thêm thư viện SheetJS để xuất Excel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
         body { font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
@@ -35,12 +37,12 @@
                 <div>
                     <h1 class="text-2xl font-black text-slate-900 mb-0.5 tracking-tight uppercase">ABC Cambridge Tool</h1>
                     <div class="flex items-center gap-2">
-                        <span class="bg-blue-100 px-2 py-0.5 rounded text-[10px] font-bold text-blue-700 uppercase">V4.2 AI</span>
+                        <span class="bg-blue-100 px-2 py-0.5 rounded text-[10px] font-bold text-blue-700 uppercase">V4.5 AI AGE</span>
                         <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest text-right">Gemini 2.5 Flash Integration</p>
                     </div>
                 </div>
             </div>
-            <!-- Ô nhập API Key trên giao diện -->
+            <!-- API Key Input -->
             <div class="w-full md:w-auto flex flex-col gap-1">
                 <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Gemini API Key</label>
                 <input type="password" id="uiApiKey" placeholder="Dán API Key vào đây..." class="bg-gray-50 border border-gray-200 px-4 py-2 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 outline-none w-full md:w-64 shadow-inner">
@@ -48,7 +50,7 @@
         </div>
 
         <div class="grid grid-cols-1 gap-6">
-            <!-- Cấu hình Cambridge & Family and Friends -->
+            <!-- Configuration Section -->
             <div class="bg-white rounded-3xl p-6 custom-shadow border border-gray-100">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div class="space-y-2">
@@ -82,14 +84,14 @@
                 </div>
             </div>
 
-            <!-- Nhập dữ liệu và AI Scan -->
+            <!-- Input and AI Scan Section -->
             <div class="bg-white rounded-3xl p-6 custom-shadow border border-gray-100">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <div class="relative h-64 group">
                         <input type="file" id="imageInput" accept="image/*" class="hidden" onchange="handleAIImage(event)">
                         <label for="imageInput" class="flex flex-col items-center justify-center w-full h-full border-2 border-dashed border-gray-200 rounded-3xl cursor-pointer bg-gray-50 hover:bg-white hover:border-blue-400 transition-all">
                             <div class="bg-blue-50 p-4 rounded-2xl mb-3 group-hover:rotate-6 transition-transform">
-                                <svg class="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.587-1.587a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                <svg class="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.587-1.587a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002-2z"></path></svg>
                             </div>
                             <span class="text-sm font-bold text-slate-700 uppercase tracking-tight">Dán (Ctrl+V) hoặc Tải danh sách</span>
                             <span class="text-[10px] text-slate-400 mt-2 uppercase font-black tracking-tighter italic">AI Gemini sẽ tự phân tích Tên, Anh, Lớp</span>
@@ -103,7 +105,7 @@
 
                     <div class="flex flex-col h-full">
                         <label class="block text-[10px] font-black text-slate-400 uppercase ml-1 mb-2 tracking-widest">Văn bản trích xuất (Check & Sửa tại đây)</label>
-                        <textarea id="inputData" class="flex-1 w-full p-4 bg-gray-50 border border-gray-200 rounded-3xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm font-medium shadow-inner" placeholder="Dữ liệu mẫu sau khi quét: &#10;Nguyễn Văn An, Andy, MGL1&#10;Trần Thị Bình, Bella, MGN2"></textarea>
+                        <textarea id="inputData" class="flex-1 w-full p-4 bg-gray-50 border border-gray-200 rounded-3xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm font-medium shadow-inner" placeholder="Dữ liệu mẫu sau khi quét: &#10;Nguyễn Văn An, Andy, Lớp 4&#10;Trần Thị Bình, Bella, MGN"></textarea>
                     </div>
                 </div>
                 
@@ -118,10 +120,26 @@
                 </div>
             </div>
 
-            <!-- Kết quả hiển thị -->
+            <!-- Result Display Section -->
             <div id="resultSection" class="hidden space-y-6 pb-20 animate-in fade-in duration-500">
+                <!-- Search and Export Toolbar -->
+                <div class="flex flex-col md:flex-row items-center gap-4">
+                    <div class="flex-1 flex items-center bg-white rounded-2xl p-4 custom-shadow border border-gray-100 gap-4 w-full">
+                        <div class="bg-gray-100 p-2 rounded-xl text-slate-400">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        </div>
+                        <input type="text" id="nameSearch" onkeyup="filterResults()" placeholder="Tìm kiếm theo Tên thật hoặc Tên tiếng Anh..." class="flex-1 bg-transparent border-none outline-none text-sm font-bold text-slate-700 placeholder:text-slate-300">
+                        <div id="searchCount" class="text-[10px] font-black text-blue-600 bg-blue-50 px-3 py-1 rounded-full uppercase tracking-tighter">0 kết quả</div>
+                    </div>
+                    
+                    <button onclick="exportToExcel()" class="btn-interact bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 px-8 rounded-2xl transition-all shadow-xl flex items-center justify-center gap-3 uppercase text-[10px] tracking-widest whitespace-nowrap w-full md:w-auto">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        Xuất file Excel
+                    </button>
+                </div>
+
                 <div class="table-container bg-white rounded-3xl custom-shadow border border-gray-100 overflow-hidden">
-                    <table class="w-full text-left text-sm border-collapse">
+                    <table class="w-full text-left text-sm border-collapse" id="resultTable">
                         <thead>
                             <tr class="bg-gray-50 border-b border-gray-100">
                                 <th class="p-5 font-black text-slate-400 w-[15%] text-center uppercase text-[9px] tracking-widest">Tên Anh</th>
@@ -142,9 +160,9 @@
     </div>
 
     <script>
-        const apiKey = ""; // API Key dự phòng môi trường
+        const apiKey = ""; // API Key fallback
 
-        // Paste ảnh từ clipboard
+        // Paste image from clipboard
         window.addEventListener('paste', async (e) => {
             const items = e.clipboardData.items;
             for (let i = 0; i < items.length; i++) {
@@ -218,6 +236,50 @@
             }
         }
 
+        /**
+         * Chuyển đổi thông tin lớp sang tuổi tương ứng
+         */
+        function convertClassToAge(classInfo) {
+            if (!classInfo) return "";
+            const c = classInfo.toUpperCase().replace(/\s+/g, '');
+            
+            // Logic cho MGN và MGL
+            if (c.includes('MGN')) return "3 tuổi";
+            if (c.includes('MGL')) return "5 tuổi";
+            
+            // Tìm số lớp (ví dụ "Lớp 4" hoặc "4" -> 9 tuổi)
+            const match = c.match(/\d+/);
+            if (match) {
+                const grade = parseInt(match[0]);
+                // Quy tắc: Lớp 1 (6), 2 (7), 3 (8), 4 (9), 5 (10) -> Tuổi = Lớp + 5
+                if (grade >= 1 && grade <= 12) {
+                    return (grade + 5) + " tuổi";
+                }
+            }
+            return classInfo; // Giữ nguyên nếu không khớp quy tắc
+        }
+
+        function filterResults() {
+            const query = document.getElementById('nameSearch').value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            const rows = document.querySelectorAll('#resultBody tr');
+            let visibleCount = 0;
+
+            rows.forEach(row => {
+                const title = row.cells[1].innerText.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                if (title.includes(query)) {
+                    row.style.display = "";
+                    visibleCount++;
+                } else {
+                    row.style.display = "none";
+                }
+            });
+            
+            document.getElementById('searchCount').innerText = `${visibleCount} kết quả`;
+        }
+
+        // State to store current items for Excel export
+        let currentProcessedItems = [];
+
         function processList() {
             const input = document.getElementById('inputData').value;
             const camLevel = document.getElementById('camLevel').value;
@@ -226,8 +288,10 @@
             const tbody = document.getElementById('resultBody');
             
             tbody.innerHTML = '';
+            currentProcessedItems = [];
             const lines = input.split('\n');
             let hasData = false;
+            let count = 0;
 
             lines.forEach(line => {
                 if (!line.trim()) return;
@@ -236,12 +300,20 @@
 
                 const hoTen = parts[0];
                 const tenAnh = parts[1];
-                const lop = parts[2] || "Lớp";
+                const lopRaw = parts[2] || "";
                 
-                // Cấu trúc tiêu đề yêu cầu
+                // Chuyển đổi Lớp sang Tuổi
+                const ageInfo = convertClassToAge(lopRaw);
+                
                 const title = `${camLevel} Speaking Test - ${center} - ${hoTen} ${tenAnh}`;
-                
-                const bio = `${hoTen} - ${tenAnh} - ${lop} - Test ${date}\n\nContact for work: Anh ngữ ABC Hội An\nEmail: abcenglishcenter@gmail.com\nHotline: 0393 62 1362\nFacebook: Anh Ngữ ABC Hội An\nAddress: 1362 Trần Thủ Độ, Điện Bàn Đông, Quảng Nam`;
+                const bio = `${hoTen} - ${tenAnh} - ${ageInfo} - Test ${date}\n\nContact for work: Anh ngữ ABC Hội An\nEmail: abcenglishcenter@gmail.com\nHotline: 0393 62 1362\nFacebook: Anh Ngữ ABC Hội An\nAddress: 1362 Trần Thủ Độ, Điện Bàn Đông, Quảng Nam`;
+
+                // Store for Excel
+                currentProcessedItems.push({
+                    tenAnh: tenAnh,
+                    title: title,
+                    bio: bio
+                });
 
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-blue-50/50 transition-all group";
@@ -260,12 +332,41 @@
                 `;
                 tbody.appendChild(tr);
                 hasData = true;
+                count++;
             });
 
             if (hasData) {
                 document.getElementById('resultSection').classList.remove('hidden');
+                document.getElementById('searchCount').innerText = `${count} kết quả`;
+                document.getElementById('nameSearch').value = '';
                 document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth' });
             }
+        }
+
+        function exportToExcel() {
+            if (currentProcessedItems.length === 0) {
+                alert("Không có dữ liệu để xuất!");
+                return;
+            }
+
+            const dataForExcel = currentProcessedItems.map(item => ({
+                "Tên tiếng Anh": item.tenAnh,
+                "Title": item.title,
+                "Bio": item.bio
+            }));
+
+            const ws = XLSX.utils.json_to_sheet(dataForExcel);
+            const wscols = [{wch: 20}, {wch: 50}, {wch: 80}];
+            ws['!cols'] = wscols;
+
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Danh_sach_Speaking");
+
+            const level = document.getElementById('camLevel').value;
+            const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+            const filename = `ABC_Speaking_${level}_${dateStr}.xlsx`;
+
+            XLSX.writeFile(wb, filename);
         }
 
         function copyText(btn, text) {
@@ -290,6 +391,8 @@
             if(confirm("Xóa toàn bộ dữ liệu hiện tại?")) {
                 document.getElementById('inputData').value = '';
                 document.getElementById('resultSection').classList.add('hidden');
+                document.getElementById('nameSearch').value = '';
+                currentProcessedItems = [];
             }
         }
     </script>
