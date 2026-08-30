@@ -56,21 +56,15 @@
                     <div class="space-y-2">
                         <label class="block text-[10px] font-black text-slate-400 uppercase ml-1 tracking-widest">Cấp độ Chương trình</label>
                         <select id="camLevel" class="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none text-sm font-bold transition-all shadow-inner">
-                            <optgroup label="Cambridge English">
-                                <option value="Cambridge Starters">Starters</option>
-                                <option value="Cambridge Movers" selected>Movers</option>
-                                <option value="Cambridge Flyers">Flyers</option>
-                                <option value="Cambridge KET">KET (A2)</option>
-                                <option value="Cambridge PET">PET (B1)</option>
-                            </optgroup>
-                            <optgroup label="Family and Friends">
-                                <option value="Family and Friends 1">F&F 1</option>
-                                <option value="Family and Friends 2">F&F 2</option>
-                                <option value="Family and Friends 3">F&F 3</option>
-                                <option value="Family and Friends 4">F&F 4</option>
-                                <option value="Family and Friends 5">F&F 5</option>
-                                <option value="Family and Friends">F&F</option>
-                            </optgroup>
+                            <option value="Phonics Cambridge">Phonics Cambridge</option>
+                            <option value="Jolly Phonics">Jolly Phonics</option>
+                            <option value="Potato">Potato</option>
+                            <option value="FF Starters Cambridge">FF Starters Cambridge</option>
+                            <option value="FF1 Starters Cambridge">FF1 Starters Cambridge</option>
+                            <option value="Movers Cambridge" selected>Mover Cambridge</option>
+                            <option value="Flyers Cambridge">Flyer Cambridge</option>
+                            <option value="KET Cambridge">KET Cambridge</option>
+                            <option value="Starters Cambridge">Starters Cambridge</option>
                         </select>
                     </div>
                     <div class="space-y-2">
@@ -302,10 +296,17 @@
                 const tenAnh = parts[1];
                 const lopRaw = parts[2] || "";
                 
-                // Chuyển đổi Lớp sang Tuổi
+                // Chuyển đổi Lớp sang Tuổi cho Bio
                 const ageInfo = convertClassToAge(lopRaw);
                 
-                const title = `${camLevel} Speaking Test - ${center} - ${hoTen} ${tenAnh}`;
+                // Ghép họ và tên (TA + TV): VD "Andy Nguyễn Văn An"
+                const fullNameTATV = tenAnh ? `${tenAnh} ${hoTen}` : hoTen;
+
+                // Định dạng Title mới: Speaking test - Tên lớp - Họ và tên đầy đủ (TA + TV) - Level học
+                const title = lopRaw 
+                    ? `Speaking test - ${lopRaw} - ${fullNameTATV} - ${camLevel}`
+                    : `Speaking test - ${fullNameTATV} - ${camLevel}`;
+
                 const bio = `${hoTen} - ${tenAnh} - ${ageInfo} - Test ${date}\n\nContact for work: Anh ngữ ABC Hội An\nEmail: abcenglishcenter@gmail.com\nHotline: 0393 62 1362\nFacebook: Anh Ngữ ABC Hội An\nAddress: 1362 Trần Thủ Độ, Điện Bàn Đông, Quảng Nam`;
 
                 // Store for Excel
