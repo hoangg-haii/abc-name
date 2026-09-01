@@ -37,7 +37,7 @@
                 <div>
                     <h1 class="text-2xl font-black text-slate-900 mb-0.5 tracking-tight uppercase">ABC Cambridge Tool</h1>
                     <div class="flex items-center gap-2">
-                        <span class="bg-blue-100 px-2 py-0.5 rounded text-[10px] font-bold text-blue-700 uppercase">V4.5 AI AGE</span>
+                        <span class="bg-blue-100 px-2 py-0.5 rounded text-[10px] font-bold text-blue-700 uppercase">V4.8</span>
                         <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest text-right">Gemini 2.5 Flash Integration</p>
                     </div>
                 </div>
@@ -118,12 +118,20 @@
             <div id="resultSection" class="hidden space-y-6 pb-20 animate-in fade-in duration-500">
                 <!-- Search and Export Toolbar -->
                 <div class="flex flex-col md:flex-row items-center gap-4">
-                    <div class="flex-1 flex items-center bg-white rounded-2xl p-4 custom-shadow border border-gray-100 gap-4 w-full">
-                        <div class="bg-gray-100 p-2 rounded-xl text-slate-400">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    <div class="flex-1 flex flex-col sm:flex-row items-center bg-white rounded-2xl p-4 custom-shadow border border-gray-100 gap-4 w-full">
+                        <div class="flex items-center gap-3 w-full sm:w-auto flex-1">
+                            <div class="bg-gray-100 p-2 rounded-xl text-slate-400">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                            </div>
+                            <input type="text" id="nameSearch" onkeyup="filterResults()" placeholder="Tìm kiếm theo Tên Tiếng Anh (A - Z)..." class="flex-1 bg-transparent border-none outline-none text-sm font-bold text-slate-700 placeholder:text-slate-300">
                         </div>
-                        <input type="text" id="nameSearch" onkeyup="filterResults()" placeholder="Tìm kiếm theo Tên thật hoặc Tên tiếng Anh..." class="flex-1 bg-transparent border-none outline-none text-sm font-bold text-slate-700 placeholder:text-slate-300">
-                        <div id="searchCount" class="text-[10px] font-black text-blue-600 bg-blue-50 px-3 py-1 rounded-full uppercase tracking-tighter">0 kết quả</div>
+                        <div class="flex items-center gap-3 shrink-0">
+                            <label class="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-500">
+                                <input type="checkbox" id="toggleShowRead" onchange="filterResults()" class="rounded text-blue-600 focus:ring-blue-500">
+                                <span>Hiện cả tên đã chép</span>
+                            </label>
+                            <div id="searchCount" class="text-[10px] font-black text-blue-600 bg-blue-50 px-3 py-1 rounded-full uppercase tracking-tighter">0 kết quả</div>
+                        </div>
                     </div>
                     
                     <button onclick="exportToExcel()" class="btn-interact bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 px-8 rounded-2xl transition-all shadow-xl flex items-center justify-center gap-3 uppercase text-[10px] tracking-widest whitespace-nowrap w-full md:w-auto">
@@ -136,7 +144,7 @@
                     <table class="w-full text-left text-sm border-collapse" id="resultTable">
                         <thead>
                             <tr class="bg-gray-50 border-b border-gray-100">
-                                <th class="p-5 font-black text-slate-400 w-[15%] text-center uppercase text-[9px] tracking-widest">Tên Anh</th>
+                                <th class="p-5 font-black text-slate-400 w-[15%] text-center uppercase text-[9px] tracking-widest">Tên Anh (A-Z)</th>
                                 <th class="p-5 font-black text-slate-400 w-[30%] text-center uppercase text-[9px] tracking-widest">Tiêu đề (Title)</th>
                                 <th class="p-5 font-black text-slate-400 w-[55%] text-center uppercase text-[9px] tracking-widest">Mô tả (Bio)</th>
                             </tr>
@@ -156,111 +164,44 @@
     <script>
         const apiKey = ""; // API Key fallback
 
-        // Paste image from clipboard
-        window.addEventListener('paste', async (e) => {
-            const items = e.clipboardData.items;
-            for (let i = 0; i < items.length; i++) {
-                if (items[i].type.indexOf('image') !== -1) {
-                    const blob = items[i].getAsFile();
-                    await runGeminiOCR(blob);
-                }
-            }
-        });
-
-        async function handleAIImage(event) {
-            const file = event.target.files[0];
-            if (file) await runGeminiOCR(file);
-        }
-
-        async function fileToBase64(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = () => resolve(reader.result.split(',')[1]);
-                reader.onerror = reject;
-                reader.readAsDataURL(file);
-            });
-        }
-
-        async function runGeminiOCR(file) {
-            const loading = document.getElementById('aiLoading');
-            const inputData = document.getElementById('inputData');
-            
-            let currentKey = document.getElementById('uiApiKey').value.trim();
-            if (!currentKey) {
-                currentKey = (typeof apiKey !== 'undefined' && apiKey !== "") ? apiKey : "";
-            }
-
-            if (!currentKey) {
-                alert("Vui lòng dán API Key vào ô nhập phía trên cùng trước khi quét ảnh!");
-                return;
-            }
-
-            loading.classList.remove('hidden');
-
-            try {
-                const base64Data = await fileToBase64(file);
-                const prompt = "Hãy trích xuất danh sách học sinh từ ảnh này. Trả về văn bản thô, mỗi học sinh một dòng theo định dạng: Họ và tên, Tên tiếng Anh, Lớp. Không thêm bất kỳ văn bản giải thích nào khác.";
-                
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${currentKey}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{
-                            parts: [
-                                { text: prompt },
-                                { inlineData: { mimeType: "image/png", data: base64Data } }
-                            ]
-                        }]
-                    })
-                });
-
-                const result = await response.json();
-                
-                if (result.error) {
-                    throw new Error(result.error.message);
-                }
-
-                const text = result.candidates?.[0]?.content?.parts?.[0]?.text || "";
-                inputData.value = text.trim();
-            } catch (error) {
-                console.error("Gemini Error:", error);
-                alert("Lỗi: " + error.message);
-            } finally {
-                loading.classList.add('hidden');
-            }
-        }
-
         /**
-         * Chuyển đổi thông tin lớp sang tuổi tương ứng
+         * Chuyển đổi thông tin lớp sang tuổi tương ứng:
+         * MGN = 3 tuổi, MGL = 5 tuổi, Lớp 1-5 = Lớp + 5 tuổi (Lớp 4 = 9 tuổi)
          */
         function convertClassToAge(classInfo) {
             if (!classInfo) return "";
             const c = classInfo.toUpperCase().replace(/\s+/g, '');
             
-            // Logic cho MGN và MGL
             if (c.includes('MGN')) return "3 tuổi";
             if (c.includes('MGL')) return "5 tuổi";
             
-            // Tìm số lớp (ví dụ "Lớp 4" hoặc "4" -> 9 tuổi)
             const match = c.match(/\d+/);
             if (match) {
                 const grade = parseInt(match[0]);
-                // Quy tắc: Lớp 1 (6), 2 (7), 3 (8), 4 (9), 5 (10) -> Tuổi = Lớp + 5
                 if (grade >= 1 && grade <= 12) {
                     return (grade + 5) + " tuổi";
                 }
             }
-            return classInfo; // Giữ nguyên nếu không khớp quy tắc
+            return classInfo;
         }
 
         function filterResults() {
-            const query = document.getElementById('nameSearch').value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-            const rows = document.querySelectorAll('#resultBody tr');
+            const query = document.getElementById('nameSearch').value.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            const showRead = document.getElementById('toggleShowRead')?.checked || false;
             let visibleCount = 0;
 
-            rows.forEach(row => {
-                const title = row.cells[1].innerText.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-                if (title.includes(query)) {
+            currentProcessedItems.forEach((item, index) => {
+                const row = document.getElementById(`row-${index}`);
+                if (!row) return;
+
+                // Search ONLY by English Name
+                const engNameNorm = (item.tenAnh || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                const matchesSearch = engNameNorm.includes(query);
+
+                // Exclude read items when searching unless "showRead" is enabled
+                const isHiddenByRead = item.isRead && !showRead && query !== "";
+
+                if (matchesSearch && !isHiddenByRead) {
                     row.style.display = "";
                     visibleCount++;
                 } else {
@@ -271,7 +212,7 @@
             document.getElementById('searchCount').innerText = `${visibleCount} kết quả`;
         }
 
-        // State to store current items for Excel export
+        // State to store current items for Excel export and read status
         let currentProcessedItems = [];
 
         function processList() {
@@ -284,8 +225,7 @@
             tbody.innerHTML = '';
             currentProcessedItems = [];
             const lines = input.split('\n');
-            let hasData = false;
-            let count = 0;
+            let rawItems = [];
 
             lines.forEach(line => {
                 if (!line.trim()) return;
@@ -302,46 +242,109 @@
                 // Ghép họ và tên (TA + TV): VD "Andy Nguyễn Văn An"
                 const fullNameTATV = tenAnh ? `${tenAnh} ${hoTen}` : hoTen;
 
-                // Định dạng Title mới: Speaking test - Tên lớp - Họ và tên đầy đủ (TA + TV) - Level học
+                // Định dạng Title
                 const title = lopRaw 
                     ? `Speaking test - ${lopRaw} - ${fullNameTATV} - ${camLevel}`
                     : `Speaking test - ${fullNameTATV} - ${camLevel}`;
 
                 const bio = `${hoTen} - ${tenAnh} - ${ageInfo} - Test ${date}\n\nContact for work: Anh ngữ ABC Hội An\nEmail: abcenglishcenter@gmail.com\nHotline: 0393 62 1362\nFacebook: Anh Ngữ ABC Hội An\nAddress: 1362 Trần Thủ Độ, Điện Bàn Đông, Quảng Nam`;
 
-                // Store for Excel
-                currentProcessedItems.push({
-                    tenAnh: tenAnh,
-                    title: title,
-                    bio: bio
+                rawItems.push({
+                    hoTen,
+                    tenAnh,
+                    lopRaw,
+                    title,
+                    bio,
+                    isRead: false
                 });
+            });
 
+            if (rawItems.length === 0) return;
+
+            // Sort A - Z by English Name (tenAnh)
+            rawItems.sort((a, b) => a.tenAnh.localeCompare(b.tenAnh, 'en', { sensitivity: 'base' }));
+            currentProcessedItems = rawItems;
+
+            currentProcessedItems.forEach((item, index) => {
                 const tr = document.createElement('tr');
+                tr.id = `row-${index}`;
                 tr.className = "hover:bg-blue-50/50 transition-all group";
                 tr.innerHTML = `
                     <td class="p-6 text-center">
-                        <span class="inline-block bg-white border border-blue-100 text-blue-600 font-black px-4 py-2 rounded-xl text-xs shadow-sm">${tenAnh}</span>
+                        <span class="inline-block bg-white border border-blue-100 text-blue-600 font-black px-4 py-2 rounded-xl text-xs shadow-sm mb-2">${item.tenAnh}</span>
+                        <div>
+                            <span id="status-${index}" class="inline-block bg-slate-100 text-slate-400 font-bold px-2 py-0.5 rounded text-[8px] uppercase">Chưa đọc</span>
+                        </div>
                     </td>
                     <td class="p-6">
-                        <div class="bg-white border border-gray-100 p-4 rounded-2xl font-bold text-slate-700 text-center text-[11px] mb-3 shadow-sm group-hover:border-blue-200 transition-colors">${title}</div>
-                        <button onclick="copyText(this, \`${title}\`)" class="btn-interact w-full bg-slate-900 text-white text-[9px] font-black py-3 rounded-xl hover:bg-blue-600 uppercase tracking-widest shadow-lg">Copy Title</button>
+                        <div class="bg-white border border-gray-100 p-4 rounded-2xl font-bold text-slate-700 text-center text-[11px] mb-3 shadow-sm group-hover:border-blue-200 transition-colors">${item.title}</div>
+                        <button onclick="copyTitle(this, \`${item.title}\`, ${index})" class="btn-interact w-full bg-slate-900 text-white text-[9px] font-black py-3 rounded-xl hover:bg-blue-600 uppercase tracking-widest shadow-lg">Copy Title</button>
                     </td>
                     <td class="p-6">
-                        <div class="bg-gray-50 border border-gray-100 p-4 rounded-2xl whitespace-pre-wrap text-slate-500 text-[10px] mb-3 group-hover:bg-white transition-colors leading-relaxed">${bio}</div>
-                        <button onclick="copyText(this, \`${bio}\`)" class="btn-interact w-full bg-white text-slate-400 border border-gray-200 text-[9px] font-black py-3 rounded-xl hover:bg-slate-50 uppercase tracking-widest">Copy Bio</button>
+                        <div class="bg-gray-50 border border-gray-100 p-4 rounded-2xl whitespace-pre-wrap text-slate-500 text-[10px] mb-3 group-hover:bg-white transition-colors leading-relaxed">${item.bio}</div>
+                        <button onclick="copyBio(this, \`${item.bio}\`, ${index})" class="btn-interact w-full bg-white text-blue-600 border border-blue-200 text-[9px] font-black py-3 rounded-xl hover:bg-blue-50 uppercase tracking-widest shadow-sm">Copy Bio & Đánh Dấu</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
-                hasData = true;
-                count++;
             });
 
-            if (hasData) {
-                document.getElementById('resultSection').classList.remove('hidden');
-                document.getElementById('searchCount').innerText = `${count} kết quả`;
-                document.getElementById('nameSearch').value = '';
-                document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth' });
+            document.getElementById('resultSection').classList.remove('hidden');
+            document.getElementById('nameSearch').value = '';
+            filterResults();
+            document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function markAsRead(index) {
+            if (index !== undefined && currentProcessedItems[index]) {
+                currentProcessedItems[index].isRead = true;
+                const row = document.getElementById(`row-${index}`);
+                if (row) {
+                    row.classList.add('bg-slate-50', 'opacity-50');
+                }
+                const statusBadge = document.getElementById(`status-${index}`);
+                if (statusBadge) {
+                    statusBadge.innerText = 'ĐÃ CHÉP';
+                    statusBadge.className = 'inline-block bg-emerald-100 text-emerald-700 font-bold px-2 py-0.5 rounded text-[8px] uppercase';
+                }
             }
+        }
+
+        function copyTitle(btn, text, index) {
+            copyTextToClipboard(text);
+            showToast("Đã copy Title!");
+            const originalText = btn.innerText;
+            btn.innerText = 'ĐÃ COPY!';
+            setTimeout(() => { btn.innerText = originalText; }, 800);
+        }
+
+        function copyBio(btn, text, index) {
+            copyTextToClipboard(text);
+            markAsRead(index);
+            showToast("Đã copy Bio & Đánh dấu đã đọc!");
+            
+            const originalText = btn.innerText;
+            btn.innerText = 'ĐÃ CHÉP & ĐỌC!';
+            setTimeout(() => { btn.innerText = originalText; }, 800);
+
+            // Re-filter so read items are automatically hidden from active search results
+            filterResults();
+        }
+
+        function copyTextToClipboard(text) {
+            const el = document.createElement('textarea');
+            el.value = text;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg || "Copy thành công!";
+            toast.classList.remove('opacity-0', 'translate-y-10');
+            toast.classList.add('opacity-100', 'translate-y-0');
+            setTimeout(() => { toast.classList.add('opacity-0', 'translate-y-10'); }, 1500);
         }
 
         function exportToExcel() {
@@ -353,11 +356,12 @@
             const dataForExcel = currentProcessedItems.map(item => ({
                 "Tên tiếng Anh": item.tenAnh,
                 "Title": item.title,
-                "Bio": item.bio
+                "Bio": item.bio,
+                "Trạng thái": item.isRead ? "Đã chép" : "Chưa chép"
             }));
 
             const ws = XLSX.utils.json_to_sheet(dataForExcel);
-            const wscols = [{wch: 20}, {wch: 50}, {wch: 80}];
+            const wscols = [{wch: 20}, {wch: 50}, {wch: 80}, {wch: 15}];
             ws['!cols'] = wscols;
 
             const wb = XLSX.utils.book_new();
@@ -368,24 +372,6 @@
             const filename = `ABC_Speaking_${level}_${dateStr}.xlsx`;
 
             XLSX.writeFile(wb, filename);
-        }
-
-        function copyText(btn, text) {
-            const el = document.createElement('textarea');
-            el.value = text;
-            document.body.appendChild(el);
-            el.select();
-            document.execCommand('copy');
-            document.body.removeChild(el);
-
-            const toast = document.getElementById('toast');
-            toast.classList.remove('opacity-0', 'translate-y-10');
-            toast.classList.add('opacity-100', 'translate-y-0');
-            setTimeout(() => { toast.classList.add('opacity-0', 'translate-y-10'); }, 1500);
-            
-            const originalText = btn.innerText;
-            btn.innerText = 'ĐÃ COPY!';
-            setTimeout(() => { btn.innerText = originalText; }, 800);
         }
 
         function clearData() {
