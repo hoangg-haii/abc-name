@@ -37,7 +37,7 @@
                 <div>
                     <h1 class="text-2xl font-black text-slate-900 mb-0.5 tracking-tight uppercase">ABC Cambridge Tool</h1>
                     <div class="flex items-center gap-2">
-                        <span class="bg-blue-100 px-2 py-0.5 rounded text-[10px] font-bold text-blue-700 uppercase">V4.8</span>
+                        <span class="bg-blue-100 px-2 py-0.5 rounded text-[10px] font-bold text-blue-700 uppercase">V4.9</span>
                         <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest text-right">Gemini 2.5 Flash Integration</p>
                     </div>
                 </div>
@@ -81,13 +81,13 @@
             <!-- Input and AI Scan Section -->
             <div class="bg-white rounded-3xl p-6 custom-shadow border border-gray-100">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                    <div class="relative h-64 group">
+                    <div class="relative h-64 group" id="dropZone">
                         <input type="file" id="imageInput" accept="image/*" class="hidden" onchange="handleAIImage(event)">
                         <label for="imageInput" class="flex flex-col items-center justify-center w-full h-full border-2 border-dashed border-gray-200 rounded-3xl cursor-pointer bg-gray-50 hover:bg-white hover:border-blue-400 transition-all">
                             <div class="bg-blue-50 p-4 rounded-2xl mb-3 group-hover:rotate-6 transition-transform">
-                                <svg class="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.587-1.587a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002-2z"></path></svg>
+                                <svg class="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.587-1.587a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2H6a2 2 0 00-2 2v12a2 2 0 002-2z"></path></svg>
                             </div>
-                            <span class="text-sm font-bold text-slate-700 uppercase tracking-tight">Dán (Ctrl+V) hoặc Tải danh sách</span>
+                            <span class="text-sm font-bold text-slate-700 uppercase tracking-tight">Dán (Ctrl+V) hoặc Bấm vào đây chọn file</span>
                             <span class="text-[10px] text-slate-400 mt-2 uppercase font-black tracking-tighter italic">AI Gemini sẽ tự phân tích Tên, Anh, Lớp</span>
                         </label>
                         <!-- Loading Overlay -->
@@ -163,6 +163,115 @@
 
     <script>
         const apiKey = ""; // API Key fallback
+
+        // --- CLIPBOARD PASTE & FILE HANDLING & GEMINI VISION INTEGRATION ---
+        
+        // Listen for Ctrl+V paste events anywhere on the window
+        window.addEventListener('paste', (e) => {
+            const items = e.clipboardData?.items;
+            if (!items) return;
+            for (let i = 0; i < items.length; i++) {
+                if (items[i].type.indexOf('image') !== -1) {
+                    const file = items[i].getAsFile();
+                    if (file) {
+                        processImageWithGemini(file);
+                        break;
+                    }
+                }
+            }
+        });
+
+        // Handle file select from file input
+        function handleAIImage(event) {
+            const file = event.target.files && event.target.files[0];
+            if (file) {
+                processImageWithGemini(file);
+            }
+        }
+
+        // Handle Drag and Drop
+        document.addEventListener('DOMContentLoaded', () => {
+            const dropZone = document.getElementById('dropZone');
+            if (!dropZone) return;
+
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }, false);
+            });
+
+            dropZone.addEventListener('drop', (e) => {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                if (files && files.length > 0 && files[0].type.startsWith('image/')) {
+                    processImageWithGemini(files[0]);
+                }
+            });
+        });
+
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+                reader.readAsDataURL(file);
+            });
+        }
+
+        async function processImageWithGemini(file) {
+            const key = document.getElementById('uiApiKey')?.value.trim() || apiKey;
+            const loading = document.getElementById('aiLoading');
+            if (loading) loading.classList.remove('hidden');
+
+            try {
+                const base64Data = await fileToBase64(file);
+                const mimeType = file.type || 'image/png';
+                const base64Clean = base64Data.split(',')[1];
+
+                const prompt = "Hãy phân tích danh sách học sinh trong ảnh. Trích xuất danh sách thành từng dòng với định dạng chuẩn: [Họ và Tên], [Tên Tiếng Anh], [Lớp/Khối]. Ví dụ:\nNguyễn Văn An, Andy, Lớp 4\nTrần Thị Bình, Bella, MGN\nChỉ trả về văn bản dạng các dòng dữ liệu, không kèm câu giải thích hay trang trí markdown code block.";
+
+                const payload = {
+                    contents: [{
+                        role: "user",
+                        parts: [
+                            { text: prompt },
+                            {
+                                inlineData: {
+                                    mimeType: mimeType,
+                                    data: base64Clean
+                                }
+                            }
+                        ]
+                    }]
+                };
+
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${key}`;
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+                const textResult = data.candidates?.[0]?.content?.parts?.[0]?.text;
+
+                if (textResult) {
+                    document.getElementById('inputData').value = textResult.trim();
+                    showToast("Đã phân tích ảnh thành công!");
+                } else {
+                    showToast("Không thể đọc được ảnh hoặc API Key chưa đúng.");
+                }
+            } catch (err) {
+                console.error("Gemini Vision error:", err);
+                showToast("Lỗi xử lý ảnh với Gemini!");
+            } finally {
+                if (loading) loading.classList.add('hidden');
+                // Reset file input value so user can re-upload same file if needed
+                const imgInput = document.getElementById('imageInput');
+                if (imgInput) imgInput.value = '';
+            }
+        }
 
         /**
          * Chuyển đổi thông tin lớp sang tuổi tương ứng:
