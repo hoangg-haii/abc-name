@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ABC Speaking Tool</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Thêm thư viện SheetJS để xuất Excel -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
@@ -37,12 +36,11 @@
                 <div>
                     <h1 class="text-2xl font-black text-slate-900 mb-0.5 tracking-tight uppercase">ABC Cambridge Tool</h1>
                     <div class="flex items-center gap-2">
-                        <span class="bg-blue-100 px-2 py-0.5 rounded text-[10px] font-bold text-blue-700 uppercase">V4.9</span>
-                        <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest text-right">Gemini 2.5 Flash Integration</p>
+                        <span class="bg-blue-100 px-2 py-0.5 rounded text-[10px] font-bold text-blue-700 uppercase">V5.0</span>
+                        <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest text-right">Gemini Vision Integration</p>
                     </div>
                 </div>
             </div>
-            <!-- API Key Input -->
             <div class="w-full md:w-auto flex flex-col gap-1">
                 <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Gemini API Key</label>
                 <input type="password" id="uiApiKey" placeholder="Dán API Key vào đây..." class="bg-gray-50 border border-gray-200 px-4 py-2 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 outline-none w-full md:w-64 shadow-inner">
@@ -50,7 +48,6 @@
         </div>
 
         <div class="grid grid-cols-1 gap-6">
-            <!-- Configuration Section -->
             <div class="bg-white rounded-3xl p-6 custom-shadow border border-gray-100">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div class="space-y-2">
@@ -59,12 +56,12 @@
                             <option value="Phonics Cambridge">Phonics Cambridge</option>
                             <option value="Jolly Phonics">Jolly Phonics</option>
                             <option value="Potato">Potato</option>
-                            <option value="FF Starters Cambridge">FF Starters Cambridge</option>
-                            <option value="FF1 Starters Cambridge">FF1 Starters Cambridge</option>
-                            <option value="Movers Cambridge" selected>Mover Cambridge</option>
-                            <option value="Flyers Cambridge">Flyer Cambridge</option>
-                            <option value="KET Cambridge">KET Cambridge</option>
+                            <option value="Family & Friends Starters">Family & Friends Starters</option>
+                            <option value="Family & Friends 1 Starters">Family & Friends 1 Starters</option>
                             <option value="Starters Cambridge">Starters Cambridge</option>
+                            <option value="Mover Cambridge" selected>Mover Cambridge</option>
+                            <option value="Flyer Cambridge">Flyer Cambridge</option>
+                            <option value="KET Cambridge">KET Cambridge</option>
                         </select>
                     </div>
                     <div class="space-y-2">
@@ -78,7 +75,6 @@
                 </div>
             </div>
 
-            <!-- Input and AI Scan Section -->
             <div class="bg-white rounded-3xl p-6 custom-shadow border border-gray-100">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <div class="relative h-64 group" id="dropZone">
@@ -90,7 +86,6 @@
                             <span class="text-sm font-bold text-slate-700 uppercase tracking-tight">Dán (Ctrl+V) hoặc Bấm vào đây chọn file</span>
                             <span class="text-[10px] text-slate-400 mt-2 uppercase font-black tracking-tighter italic">AI Gemini sẽ tự phân tích Tên, Anh, Lớp</span>
                         </label>
-                        <!-- Loading Overlay -->
                         <div id="aiLoading" class="hidden absolute inset-0 bg-white/95 rounded-3xl flex flex-col items-center justify-center z-10 border border-blue-100 shadow-xl">
                             <div class="loader mb-4"></div>
                             <span class="text-[10px] font-black text-blue-600 uppercase tracking-widest animate-pulse">Gemini đang phân tích dữ liệu...</span>
@@ -114,9 +109,7 @@
                 </div>
             </div>
 
-            <!-- Result Display Section -->
             <div id="resultSection" class="hidden space-y-6 pb-20 animate-in fade-in duration-500">
-                <!-- Search and Export Toolbar -->
                 <div class="flex flex-col md:flex-row items-center gap-4">
                     <div class="flex-1 flex flex-col sm:flex-row items-center bg-white rounded-2xl p-4 custom-shadow border border-gray-100 gap-4 w-full">
                         <div class="flex items-center gap-3 w-full sm:w-auto flex-1">
@@ -164,9 +157,7 @@
     <script>
         const apiKey = ""; // API Key fallback
 
-        // --- CLIPBOARD PASTE & FILE HANDLING & GEMINI VISION INTEGRATION ---
-        
-        // Listen for Ctrl+V paste events anywhere on the window
+        // Listen for Ctrl+V paste events
         window.addEventListener('paste', (e) => {
             const items = e.clipboardData?.items;
             if (!items) return;
@@ -181,7 +172,6 @@
             }
         });
 
-        // Handle file select from file input
         function handleAIImage(event) {
             const file = event.target.files && event.target.files[0];
             if (file) {
@@ -189,7 +179,6 @@
             }
         }
 
-        // Handle Drag and Drop
         document.addEventListener('DOMContentLoaded', () => {
             const dropZone = document.getElementById('dropZone');
             if (!dropZone) return;
@@ -229,7 +218,7 @@
                 const mimeType = file.type || 'image/png';
                 const base64Clean = base64Data.split(',')[1];
 
-                const prompt = "Hãy phân tích danh sách học sinh trong ảnh. Trích xuất danh sách thành từng dòng với định dạng chuẩn: [Họ và Tên], [Tên Tiếng Anh], [Lớp/Khối]. Ví dụ:\nNguyễn Văn An, Andy, Lớp 4\nTrần Thị Bình, Bella, MGN\nChỉ trả về văn bản dạng các dòng dữ liệu, không kèm câu giải thích hay trang trí markdown code block.";
+                const prompt = "Hãy phân tích danh sách học sinh trong ảnh. Trích xuất danh sách thành từng dòng với định dạng chuẩn: [Họ và Tên], [Tên Tiếng Anh], [Lớp/Khối/Tuổi]. Ví dụ:\nNguyễn Văn An, Andy, Lớp 4\nTrần Thị Bình, Bella, MGN\nChỉ trả về văn bản dạng các dòng dữ liệu, không kèm câu giải thích hay trang trí markdown code block.";
 
                 const payload = {
                     contents: [{
@@ -267,32 +256,63 @@
                 showToast("Lỗi xử lý ảnh với Gemini!");
             } finally {
                 if (loading) loading.classList.add('hidden');
-                // Reset file input value so user can re-upload same file if needed
                 const imgInput = document.getElementById('imageInput');
                 if (imgInput) imgInput.value = '';
             }
         }
 
         /**
-         * Chuyển đổi thông tin lớp sang tuổi tương ứng:
-         * MGN = 3 tuổi, MGL = 5 tuổi, Lớp 1-5 = Lớp + 5 tuổi (Lớp 4 = 9 tuổi)
+         * Chuyển đổi hai chiều giữa Lớp và Độ tuổi:
+         * MGN <-> 3 tuổi
+         * MGL <-> 5 tuổi
+         * Lớp 1-5 <-> 6-10 tuổi (Tuổi = Lớp + 5, Lớp = Tuổi - 5)
          */
-        function convertClassToAge(classInfo) {
-            if (!classInfo) return "";
-            const c = classInfo.toUpperCase().replace(/\s+/g, '');
-            
-            if (c.includes('MGN')) return "3 tuổi";
-            if (c.includes('MGL')) return "5 tuổi";
-            
-            const match = c.match(/\d+/);
-            if (match) {
-                const grade = parseInt(match[0]);
-                if (grade >= 1 && grade <= 12) {
-                    return (grade + 5) + " tuổi";
+        function parseClassAndAge(rawInput) {
+            if (!rawInput) return { className: "", ageText: "" };
+            const str = rawInput.trim();
+            const upper = str.toUpperCase().replace(/\s+/g, '');
+
+            // 1. Nhận diện MGN và MGL
+            if (upper.includes('MGN')) {
+                return { className: 'MGN', ageText: '3 tuổi' };
+            }
+            if (upper.includes('MGL')) {
+                return { className: 'MGL', ageText: '5 tuổi' };
+            }
+
+            // 2. Nhận diện nếu nhập thông tin tuổi (ví dụ: "9 tuổi", "9t", "3 tuổi")
+            if (str.toLowerCase().includes('tuổi') || str.toLowerCase().includes('t')) {
+                const match = str.match(/\d+/);
+                if (match) {
+                    const age = parseInt(match[0]);
+                    if (age === 3) return { className: 'MGN', ageText: '3 tuổi' };
+                    if (age === 5) return { className: 'MGL', ageText: '5 tuổi' };
+                    if (age >= 6 && age <= 10) {
+                        return { className: `Lớp ${age - 5}`, ageText: `${age} tuổi` };
+                    }
+                    return { className: `Lớp ${age}`, ageText: `${age} tuổi` };
                 }
             }
-            return classInfo;
+
+            // 3. Nhận diện số lớp (ví dụ: "Lớp 4", "4", "L1")
+            const match = str.match(/\d+/);
+            if (match) {
+                const num = parseInt(match[0]);
+                // Nếu là số lớp từ 1 -> 5
+                if (str.toLowerCase().includes('lớp') || str.toLowerCase().includes('lop') || (num >= 1 && num <= 5)) {
+                    const age = num + 5;
+                    return { className: `Lớp ${num}`, ageText: `${age} tuổi` };
+                }
+                // Nếu nhập số từ 6 -> 10 không có chữ "lớp" (coi là tuổi)
+                if (num >= 6 && num <= 10) {
+                    return { className: `Lớp ${num - 5}`, ageText: `${num} tuổi` };
+                }
+            }
+
+            return { className: str, ageText: str };
         }
+
+        let currentProcessedItems = [];
 
         function filterResults() {
             const query = document.getElementById('nameSearch').value.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
@@ -303,11 +323,9 @@
                 const row = document.getElementById(`row-${index}`);
                 if (!row) return;
 
-                // Search ONLY by English Name
                 const engNameNorm = (item.tenAnh || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
                 const matchesSearch = engNameNorm.includes(query);
 
-                // Exclude read items when searching unless "showRead" is enabled
                 const isHiddenByRead = item.isRead && !showRead && query !== "";
 
                 if (matchesSearch && !isHiddenByRead) {
@@ -320,9 +338,6 @@
             
             document.getElementById('searchCount').innerText = `${visibleCount} kết quả`;
         }
-
-        // State to store current items for Excel export and read status
-        let currentProcessedItems = [];
 
         function processList() {
             const input = document.getElementById('inputData').value;
@@ -345,23 +360,25 @@
                 const tenAnh = parts[1];
                 const lopRaw = parts[2] || "";
                 
-                // Chuyển đổi Lớp sang Tuổi cho Bio
-                const ageInfo = convertClassToAge(lopRaw);
+                // Quy đổi Lớp & Tuổi
+                const { className, ageText } = parseClassAndAge(lopRaw);
                 
-                // Ghép họ và tên (TA + TV): VD "Andy Nguyễn Văn An"
+                // Họ và tên đầy đủ (TA + TV): Ví dụ "Andy Nguyễn Văn An"
                 const fullNameTATV = tenAnh ? `${tenAnh} ${hoTen}` : hoTen;
 
-                // Định dạng Title
-                const title = lopRaw 
-                    ? `Speaking test - ${lopRaw} - ${fullNameTATV} - ${camLevel}`
+                // Format Title: Speaking test - Tên lớp - Họ và tên đầy đủ (TA + TV) - Level học
+                const title = className 
+                    ? `Speaking test - ${className} - ${fullNameTATV} - ${camLevel}`
                     : `Speaking test - ${fullNameTATV} - ${camLevel}`;
 
-                const bio = `${hoTen} - ${tenAnh} - ${ageInfo} - Test ${date}\n\nContact for work: Anh ngữ ABC Hội An\nEmail: abcenglishcenter@gmail.com\nHotline: 0393 62 1362\nFacebook: Anh Ngữ ABC Hội An\nAddress: 1362 Trần Thủ Độ, Điện Bàn Đông, Quảng Nam`;
+                const bio = `${hoTen} - ${tenAnh} - ${ageText} - Test ${date}\n\nContact for work: Anh ngữ ABC Hội An\nEmail: abcenglishcenter@gmail.com\nHotline: 0393 62 1362\nFacebook: Anh Ngữ ABC Hội An\nAddress: 1362 Trần Thủ Độ, Điện Bàn Đông, Quảng Nam`;
 
                 rawItems.push({
                     hoTen,
                     tenAnh,
                     lopRaw,
+                    className,
+                    ageText,
                     title,
                     bio,
                     isRead: false
@@ -370,7 +387,7 @@
 
             if (rawItems.length === 0) return;
 
-            // Sort A - Z by English Name (tenAnh)
+            // Sắp xếp A - Z theo Tên Tiếng Anh (tenAnh)
             rawItems.sort((a, b) => a.tenAnh.localeCompare(b.tenAnh, 'en', { sensitivity: 'base' }));
             currentProcessedItems = rawItems;
 
@@ -435,7 +452,6 @@
             btn.innerText = 'ĐÃ CHÉP & ĐỌC!';
             setTimeout(() => { btn.innerText = originalText; }, 800);
 
-            // Re-filter so read items are automatically hidden from active search results
             filterResults();
         }
 
